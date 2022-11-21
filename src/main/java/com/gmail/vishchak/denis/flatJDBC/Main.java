@@ -13,8 +13,42 @@ public class Main {
     static Connection conn;
 
     public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        try {
+            try {
+                conn = DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PASSWORD);
+                initDB();
+                while (true) {
+                    System.out.println("1: add flat");
+                    System.out.println("2: add random flats");
+                    System.out.println("3: view flats");
+                    System.out.print("-> ");
 
+                    int decision = sc.nextInt();
+                    switch (decision) {
+                        case 1:
+                            addFlat(sc);
+                            break;
+                        case 2:
+                            addRandomFlat(sc);
+                            break;
+                        case 3:
+                            viewFlats(sc);
+                            break;
+                        default:
+                            return;
+                    }
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } finally {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
+
     private static void initDB() throws SQLException {
         Statement st = conn.createStatement();
         try {
@@ -120,7 +154,7 @@ public class Main {
 
     private static void priceLower(Scanner sc) throws SQLException {
         System.out.println("Input highest affordable price");
-        Long price = sc.nextLong();
+        long price = sc.nextLong();
         PreparedStatement ps = conn.prepareStatement("SELECT * FROM Flats" +
                 " WHERE price<" + price);
         queryExecute(ps);
