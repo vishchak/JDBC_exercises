@@ -84,5 +84,69 @@ public class Main {
         }
     }
 
+    private static void viewFlats(Scanner sc) throws SQLException {
+        System.out.println("1: All available flats\n" +
+                "2: specific room count\n" +
+                "3: lower than a specific price");
+        int decision = sc.nextInt();
 
+        switch (decision) {
+            case 1:
+                allFlats();
+                break;
+            case 2:
+                totalRooms(sc);
+                break;
+            case 3:
+                priceLower(sc);
+                break;
+            default:
+                return;
+        }
+    }
+
+    private static void allFlats() throws SQLException {
+        PreparedStatement ps = conn.prepareStatement("SELECT * FROM Flats");
+        queryExecute(ps);
+    }
+
+    private static void totalRooms(Scanner sc) throws SQLException {
+        System.out.println("Enter room count needed");
+        int totalFlats = sc.nextInt();
+        PreparedStatement ps = conn.prepareStatement("SELECT * FROM Flats" +
+                " WHERE roomsTotal=" + totalFlats);
+        queryExecute(ps);
+    }
+
+    private static void priceLower(Scanner sc) throws SQLException {
+        System.out.println("Input highest affordable price");
+        Long price = sc.nextLong();
+        PreparedStatement ps = conn.prepareStatement("SELECT * FROM Flats" +
+                " WHERE price<" + price);
+        queryExecute(ps);
+    }
+
+    private static void queryExecute(PreparedStatement ps) throws SQLException {
+        try {
+            ResultSet rs = ps.executeQuery();
+            try {
+                ResultSetMetaData md = rs.getMetaData();
+
+                for (int i = 1; i <= md.getColumnCount(); i++)
+                    System.out.print(md.getColumnName(i) + "\t\t");
+                System.out.println();
+
+                while (rs.next()) {
+                    for (int i = 1; i <= md.getColumnCount(); i++) {
+                        System.out.print(rs.getString(i) + "\t\t");
+                    }
+                    System.out.println();
+                }
+            } finally {
+                rs.close();
+            }
+        } finally {
+            ps.close();
+        }
+    }
 }
